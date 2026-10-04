@@ -1,0 +1,44 @@
+name: NSE Intraday Picks
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 8 * * 1-5"
+      timezone: "Asia/Kolkata"
+
+permissions:
+  contents: read
+
+jobs:
+  run-nse-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run NSE report
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TZ: Asia/Kolkata
+        run: python nse_intraday_picks_pro.py
+
+      - name: Upload Excel as GitHub Actions artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nse-intraday-report
+          path: "NSE_Intraday_PRO_*.xlsx"
+          if-no-files-found: warn
+          retention-days: 7
