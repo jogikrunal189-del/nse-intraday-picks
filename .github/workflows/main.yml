@@ -3,7 +3,7 @@ name: NSE Intraday Picks
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 8 * * 1-5"
+    - cron: "37 8 * * 1-5"
       timezone: "Asia/Kolkata"
 
 permissions:
