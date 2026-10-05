@@ -2,12 +2,23 @@ name: NSE Intraday Picks
 
 on:
   workflow_dispatch:
+
   schedule:
+    # Primary attempt
     - cron: "37 8 * * 1-5"
+      timezone: "Asia/Kolkata"
+
+    # Backup attempt
+    - cron: "47 8 * * 1-5"
+      timezone: "Asia/Kolkata"
+
+    # Final backup attempt
+    - cron: "57 8 * * 1-5"
       timezone: "Asia/Kolkata"
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   run-nse-report:
@@ -32,13 +43,14 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TZ: Asia/Kolkata
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python nse_intraday_picks_pro.py
 
       - name: Upload Excel as GitHub Actions artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nse-intraday-report
+          name: nse-intraday-report-${{ github.run_number }}
           path: "NSE_Intraday_PRO_*.xlsx"
           if-no-files-found: warn
           retention-days: 7
